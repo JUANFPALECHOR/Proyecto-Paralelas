@@ -2,7 +2,9 @@ from warcio.archiveiterator import ArchiveIterator # Librería para leer archivo
 from cleaner import clean_html
 import gzip # me permite abrir archivos comprimidos con gzip
 
-def process_warc_file(filepath):
+def process_warc_file(filepath, limit=50):
+    count = 0
+    
     with gzip.open(filepath, "rb") as stream:
         for record in ArchiveIterator(stream):
 
@@ -11,6 +13,9 @@ def process_warc_file(filepath):
 
             url = record.rec_headers.get_header("WARC-Target-URI")
             html = record.content_stream().read()
+            
+            if not html:
+                continue
 
             try:
                 text = clean_html(html)
@@ -19,4 +24,10 @@ def process_warc_file(filepath):
 
             print(f"\nURL: {url}")
             print(f"Texto limpio: {text[:200]}...\n")
+            
+            count += 1
+            if count >= limit:
+                break
+            
+    print(f"\n✔ Procesadas {count} páginas del archivo\n")
 
