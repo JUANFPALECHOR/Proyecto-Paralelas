@@ -1,10 +1,15 @@
 from warcio.archiveiterator import ArchiveIterator # Librería para leer archivos WARC
+from writer import save_row_to_csv
 from cleaner import clean_html
 import gzip # me permite abrir archivos comprimidos con gzip
+import tldextract # me permite extraer dominios de URLs
 
 def process_warc_file(filepath, limit=50):
     count = 0
-    
+    output_path = "../data/output.csv"
+
+    header = ["url", "dominio", "titulo", "fecha", "texto", "longitud"]
+
     with gzip.open(filepath, "rb") as stream:
         for record in ArchiveIterator(stream):
 
@@ -13,21 +18,34 @@ def process_warc_file(filepath, limit=50):
 
             url = record.rec_headers.get_header("WARC-Target-URI")
             html = record.content_stream().read()
-            
-            if not html:
+
+            if not html or not url:
                 continue
 
+            # --- limpiar contenido y extraer metadatos ---
             try:
-                text = clean_html(html)
+                titulo, fecha, texto = clean_html(html)
             except:
                 continue
 
-            print(f"\nURL: {url}")
-            print(f"Texto limpio: {text[:200]}...\n")
-            
+            dominio = tldextract.extract(url).registered_domain
+            longitud = len(texto)
+
+            # Construir fila
+            row = {
+                "url": url,
+                "dominio": dominio,
+                "titulo": titulo,
+                "fecha": fecha,
+                "texto": texto,
+                "longitud": longitud
+            }
+
+            # Guardar en CSV
+            save_row_to_csv(output_path, row, header)
+
             count += 1
             if count >= limit:
                 break
-            
-    print(f"\n✔ Procesadas {count} páginas del archivo\n")
 
+    print(f"\n✔ Procesadas {count} páginas y guardadas en output.csv\n")

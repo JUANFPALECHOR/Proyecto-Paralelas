@@ -4,3 +4,4 @@ readability-lxml
 requests
 pandas
 lxml
+tldextract
