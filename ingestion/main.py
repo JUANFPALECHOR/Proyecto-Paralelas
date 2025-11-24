@@ -1,6 +1,13 @@
 import argparse
 import os
+from multiprocessing import Pool, cpu_count
 from warc_reader import process_warc_file
+
+def process_single_file(args):
+    filepath, limit = args
+    print(f"\n📥 Procesando archivo en paralelo: {filepath}")
+    process_warc_file(filepath, limit)
+    return filepath
 
 def main():
     parser = argparse.ArgumentParser(description="Procesador de archivos WARC")
@@ -10,19 +17,27 @@ def main():
 
     args = parser.parse_args()
 
+    
     if args.file:
         print(f"📥 Procesando archivo: {args.file}")
         process_warc_file(args.file, limit=args.limit)
         return
 
-
+    
     if args.dir:
-        print(f"📂 Procesando todos los WARC en: {args.dir}")
-        for fname in os.listdir(args.dir):
-            if fname.endswith(".warc.gz"):
-                fullpath = os.path.join(args.dir, fname)
-                print(f"\n📥 Procesando: {fullpath}")
-                process_warc_file(fullpath, limit=args.limit)
+        warc_files = [
+            os.path.join(args.dir, f)
+            for f in os.listdir(args.dir)
+            if f.endswith(".warc.gz")
+        ]
+
+        print(f"📂 Encontrados {len(warc_files)} archivos WARC")
+        print(f"⚙️ Ejecutando procesamiento paralelo con {cpu_count()} núcleos...\n")
+
+        with Pool(cpu_count()) as pool:
+            pool.map(process_single_file, [(f, args.limit) for f in warc_files])
+
+        print("\n✔ Procesamiento paralelo completado.")
         return
 
     print("⚠️ Debes pasar --file o --dir")

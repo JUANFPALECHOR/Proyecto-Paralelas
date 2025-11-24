@@ -3,10 +3,12 @@ from writer import save_row_to_csv
 from cleaner import clean_html
 import gzip # me permite abrir archivos comprimidos con gzip
 import tldextract # me permite extraer dominios de URLs
+import os
 
 def process_warc_file(filepath, limit=50):
     count = 0
-    output_path = "data/output.csv"
+    output_path = os.path.join(os.path.dirname(__file__), "..", "data", "output.csv")
+    output_path = os.path.abspath(output_path)
 
 
     header = ["url", "dominio", "titulo", "fecha", "texto", "longitud"]
