@@ -6,7 +6,8 @@ import tldextract # me permite extraer dominios de URLs
 
 def process_warc_file(filepath, limit=50):
     count = 0
-    output_path = "../data/output.csv"
+    output_path = "data/output.csv"
+
 
     header = ["url", "dominio", "titulo", "fecha", "texto", "longitud"]
 
