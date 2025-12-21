@@ -1,0 +1,2 @@
+# Deprecated: use the unified requirements at project root
+# This file is intentionally empty.
