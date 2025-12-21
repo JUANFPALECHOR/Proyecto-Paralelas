@@ -1,0 +1,30 @@
+# Unified dependencies for the entire project (ingestion, analysis, API, dashboard)
+
+# Ingestion / ETL
+warcio
+beautifulsoup4
+readability-lxml
+requests
+lxml
+tldextract
+
+# Core data libraries
+pandas>=2.0.0
+numpy>=1.24.0
+scipy>=1.10.0
+psutil>=5.9.0
+
+# Analysis features
+vaderSentiment>=3.3.2
+
+# Distributed processing (optional but supported)
+dask[dataframe]>=2024.4.0
+# pyspark is optional; uncomment if you plan to use Spark locally
+# pyspark>=3.5.0
+
+# API service
+fastapi>=0.115.0
+uvicorn[standard]>=0.30.0
+
+# Dashboard
+streamlit>=1.31.0

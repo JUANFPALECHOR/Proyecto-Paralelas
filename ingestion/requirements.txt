@@ -1,7 +1,0 @@
-warcio
-beautifulsoup4
-readability-lxml
-requests
-pandas
-lxml
-tldextract

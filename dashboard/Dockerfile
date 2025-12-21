@@ -2,7 +2,8 @@ FROM python:3.11-slim
 
 WORKDIR /app
 
-COPY dashboard/requirements.txt /app/requirements.txt
+# Install from unified root requirements; build context must be repo root
+COPY requirements.txt /app/requirements.txt
 RUN pip install --no-cache-dir -r /app/requirements.txt
 
 COPY dashboard /app/dashboard

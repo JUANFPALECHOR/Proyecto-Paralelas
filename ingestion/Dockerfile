@@ -1,10 +1,14 @@
-FROM python:3.10-slim
+FROM python:3.11-slim
 
 WORKDIR /app
 
-COPY requirements.txt .
-RUN pip install --no-cache-dir -r requirements.txt
+# Install from unified root requirements; build with context at project root
+COPY requirements.txt /app/requirements.txt
+RUN pip install --no-cache-dir -r /app/requirements.txt
 
-COPY . .
+# Copy only ingestion module into image
+COPY ingestion /app/ingestion
+ENV PYTHONPATH=/app
+WORKDIR /app/ingestion
 
 ENTRYPOINT ["python", "main.py"]

@@ -6,7 +6,8 @@ WORKDIR /app
 # Install system deps if needed (commented to keep minimal)
 # RUN apt-get update && apt-get install -y build-essential && rm -rf /var/lib/apt/lists/*
 
-COPY analysis_service/requirements.txt /app/requirements.txt
+# Use root unified requirements; build with context at project root
+COPY requirements.txt /app/requirements.txt
 RUN pip install --no-cache-dir -r /app/requirements.txt
 
 # Copy project code (analysis engine and service)

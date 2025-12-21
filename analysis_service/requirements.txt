@@ -1,11 +1,2 @@
-fastapi>=0.115.0
-uvicorn[standard]>=0.30.0
-# analysis dependencies
-pandas>=2.0.0
-numpy>=1.24.0
-scipy>=1.10.0
-vaderSentiment>=3.3.2
-psutil>=5.9.0
-dask[dataframe]>=2024.4.0
-# pyspark optional
-# pyspark>=3.5.0
+# Deprecated: use the unified requirements at project root
+# This file is intentionally empty.

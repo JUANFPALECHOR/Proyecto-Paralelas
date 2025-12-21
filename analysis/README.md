@@ -46,7 +46,12 @@ python -m analysis.metrics.benchmark --backends pandas multiprocessing dask --mp
 
 ## Requisitos
 
-Consulta `analysis/requirements.txt` y `analysis_service/requirements.txt`.
+Instala las dependencias desde el `requirements.txt` de la raíz del proyecto:
+
+```powershell
+cd "C:\Users\Windows 11\Desktop\PFParalelas\Proyecto-Paralelas"
+& "C:\Users\Windows 11\Desktop\PFParalelas\.venv\Scripts\python.exe" -m pip install -r requirements.txt
+```
 
 ## Paralelización de la carga
 - Multiprocessing: controla `--mp-procs` para fijar el tamaño del pool.

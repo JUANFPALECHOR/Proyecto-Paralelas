@@ -75,19 +75,27 @@ Este archivo sirve como entrada para las etapas posteriores del análisis distri
 
 🛠 Requerimientos
 
-Instalar dependencias desde el archivo requirements.txt:
+Instala todas las dependencias desde el `requirements.txt` en la raíz del proyecto:
 
-pip install -r requirements.txt
+```powershell
+cd "C:\Users\Windows 11\Desktop\PFParalelas\Proyecto-Paralelas"
+& "C:\Users\Windows 11\Desktop\PFParalelas\.venv\Scripts\python.exe" -m pip install -r requirements.txt
+```
 
 🐳 Docker
 
-Construir la imagen:
+Construir la imagen (desde la raíz del repo, usando el `requirements.txt` unificado):
 
-docker build -t ingestion-service .
+```powershell
+cd "C:\Users\Windows 11\Desktop\PFParalelas\Proyecto-Paralelas"
+docker build -t ingestion-service -f ingestion/Dockerfile .
+```
 
 Ejecutar el contenedor:
 
-docker run ingestion-service
+```powershell
+docker run --rm ingestion-service
+```
 
 ---
 
