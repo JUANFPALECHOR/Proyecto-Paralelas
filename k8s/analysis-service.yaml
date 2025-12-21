@@ -1,0 +1,47 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: analysis-service
+  labels:
+    app: analysis-service
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: analysis-service
+  template:
+    metadata:
+      labels:
+        app: analysis-service
+    spec:
+      containers:
+        - name: analysis-service
+          image: ghcr.io/your-org/analysis-service:latest
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 8000
+          env:
+            - name: PYTHONUNBUFFERED
+              value: "1"
+          resources:
+            requests:
+              cpu: "100m"
+              memory: "256Mi"
+            limits:
+              cpu: "500m"
+              memory: "512Mi"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: analysis-service
+  labels:
+    app: analysis-service
+spec:
+  selector:
+    app: analysis-service
+  ports:
+    - port: 8000
+      targetPort: 8000
+      protocol: TCP
+      name: http

@@ -1,0 +1,4 @@
+url,dominio,titulo,fecha,texto,longitud
+http://example.com/a,example.com,Noticia A,2024-05-20,El mercado colombiano tuvo variaciones importantes y noticias mixtas.,62
+http://example.com/b,example.com,Noticia B,2024-05-21,Análisis breve sobre el COLCAP y algunos sectores.,55
+http://example.com/c,example.com,Noticia C,2024-05-22,Reporte de prensa con datos neutrales sobre el índice.,63

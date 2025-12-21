@@ -38,20 +38,23 @@ ingestion/
 
 ## 🧪 Ejecución
 
-### Procesar un solo archivo WARC
+### Procesar un solo archivo WARC (Windows PowerShell)
 
-```bash
-python3 main.py --file ../data/warcs/archivo.warc.gz --limit 20
+```powershell
+& "C:\Users\Windows 11\Desktop\PFParalelas\.venv\Scripts\python.exe" "C:\Users\Windows 11\Desktop\PFParalelas\Proyecto-Paralelas\ingestion\main.py" --file "C:\ruta\a\archivo.warc.gz" --limit 20
+```
 
+### Procesar todos los WARC de un directorio
 
-Procesar todos los WARC de un directorio
-python3 main.py --dir ../data/warcs --limit 30
+```powershell
+& "C:\Users\Windows 11\Desktop\PFParalelas\.venv\Scripts\python.exe" "C:\Users\Windows 11\Desktop\PFParalelas\Proyecto-Paralelas\ingestion\main.py" --dir "C:\ruta\a\carpeta_warc" --limit 30
+```
 
-Parámetros disponibles
-Parámetro	Descripción
---file	Procesa un archivo WARC individual
---dir	Procesa todos los WARC contenidos en un directorio
---limit	Número de páginas a procesar por archivo (por defecto: 50)
+Parámetros disponibles:
+
+- `--file`: Procesa un archivo WARC individual
+- `--dir`: Procesa todos los WARC contenidos en un directorio
+- `--limit`: Número de páginas a procesar por archivo (por defecto: 50)
 
 📤 Salida generada
 
@@ -85,4 +88,25 @@ docker build -t ingestion-service .
 Ejecutar el contenedor:
 
 docker run ingestion-service
+
+---
+
+## 📥 Descargar WARC de Common Crawl
+
+Este proyecto incluye un script para descargar archivos WARC a partir de una lista de URLs públicas de Common Crawl:
+
+1. Crea un archivo de texto `warc_urls.txt` con una URL por línea (tomadas de https://data.commoncrawl.org en el crawl que necesites).
+2. Ejecuta el downloader:
+
+```powershell
+& "C:\Users\Windows 11\Desktop\PFParalelas\.venv\Scripts\python.exe" "C:\Users\Windows 11\Desktop\PFParalelas\Proyecto-Paralelas\ingestion\download_cc.py" --urls-file "C:\Users\Windows 11\Desktop\PFParalelas\Proyecto-Paralelas\warc_urls.txt" --out-dir "C:\Users\Windows 11\Desktop\PFParalelas\warcs" --max 3
+```
+
+Luego procesa el directorio descargado:
+
+```powershell
+& "C:\Users\Windows 11\Desktop\PFParalelas\.venv\Scripts\python.exe" "C:\Users\Windows 11\Desktop\PFParalelas\Proyecto-Paralelas\ingestion\main.py" --dir "C:\Users\Windows 11\Desktop\PFParalelas\warcs" --limit 50
+```
+
+Nota: Common Crawl es un dataset abierto; revisa el tamaño de los archivos y tu conexión antes de descargar grandes volúmenes.
 

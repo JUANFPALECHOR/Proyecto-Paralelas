@@ -25,6 +25,12 @@ def main():
 
     
     if args.dir:
+        # Validate directory exists
+        if not os.path.isdir(args.dir):
+            print(f"\n⚠️ El directorio especificado no existe: {args.dir}\n" \
+                  f"Por favor, proporciona una ruta válida que contenga archivos .warc.gz.")
+            return
+
         warc_files = [
             os.path.join(args.dir, f)
             for f in os.listdir(args.dir)

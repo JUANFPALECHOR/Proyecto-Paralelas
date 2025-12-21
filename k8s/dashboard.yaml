@@ -1,0 +1,47 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: dashboard
+  labels:
+    app: dashboard
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: dashboard
+  template:
+    metadata:
+      labels:
+        app: dashboard
+    spec:
+      containers:
+        - name: dashboard
+          image: ghcr.io/your-org/news-dashboard:latest
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 8501
+          env:
+            - name: ANALYSIS_API_URL
+              value: "http://analysis-service:8000"
+          resources:
+            requests:
+              cpu: "100m"
+              memory: "256Mi"
+            limits:
+              cpu: "500m"
+              memory: "512Mi"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: dashboard
+  labels:
+    app: dashboard
+spec:
+  selector:
+    app: dashboard
+  ports:
+    - port: 8501
+      targetPort: 8501
+      protocol: TCP
+      name: http

@@ -1,0 +1,8 @@
+pandas>=2.0.0
+numpy>=1.24.0
+scipy>=1.10.0
+vaderSentiment>=3.3.2
+psutil>=5.9.0
+dask[dataframe]>=2024.4.0
+# pyspark is optional; uncomment if using Spark
+# pyspark>=3.5.0
