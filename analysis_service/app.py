@@ -2,9 +2,30 @@ from fastapi import FastAPI, HTTPException
 from pydantic import BaseModel
 import io
 import pandas as pd
+import numpy as np
 import os
+import math
 
 from analysis.engine.factory import get_engine
+
+
+def clean_results(obj):
+    """Convert NaN, Inf to None for JSON serialization."""
+    if isinstance(obj, dict):
+        return {k: clean_results(v) for k, v in obj.items()}
+    elif isinstance(obj, list):
+        return [clean_results(v) for v in obj]
+    elif isinstance(obj, float):
+        if math.isnan(obj) or math.isinf(obj):
+            return None
+        return obj
+    elif isinstance(obj, np.floating):
+        if np.isnan(obj) or np.isinf(obj):
+            return None
+        return float(obj)
+    elif isinstance(obj, np.integer):
+        return int(obj)
+    return obj
 
 
 class CorrelationRequest(BaseModel):
@@ -53,7 +74,7 @@ def correlate(req: CorrelationRequest):
         colcap_df = engine.load_colcap(req.colcap_csv)
         joined = engine.align_series(news_feat, colcap_df)
         results = engine.compute_correlations(joined, methods=["pearson", "spearman"], rolling_windows=req.rolling)
-        return {"status": "ok", "results": results}
+        return {"status": "ok", "results": clean_results(results)}
     except Exception as e:
         raise HTTPException(status_code=400, detail=str(e))
 
@@ -83,6 +104,6 @@ def correlate_inline(req: CorrelationInlineRequest):
         colcap_df = pd.read_csv(io.StringIO(req.colcap_csv_text))
         joined = engine.align_series(news_feat, colcap_df)
         results = engine.compute_correlations(joined, methods=["pearson", "spearman"], rolling_windows=req.rolling)
-        return {"status": "ok", "results": results}
+        return {"status": "ok", "results": clean_results(results)}
     except Exception as e:
         raise HTTPException(status_code=400, detail=str(e))

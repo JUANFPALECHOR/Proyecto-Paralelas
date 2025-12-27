@@ -1,7 +1,7 @@
 import argparse
 import os
 from multiprocessing import Pool, cpu_count
-from warc_reader import process_warc_file
+from ingestion.warc_reader import process_warc_file
 
 def process_single_file(args):
     filepath, limit = args
@@ -10,17 +10,24 @@ def process_single_file(args):
     return filepath
 
 def main():
-    parser = argparse.ArgumentParser(description="Procesador de archivos WARC")
-    parser.add_argument("--file", type=str, help="Ruta a un archivo WARC específico")
-    parser.add_argument("--dir", type=str, help="Ruta a un directorio con varios archivos WARC")
-    parser.add_argument("--limit", type=int, default=50, help="Número de páginas por archivo")
+    parser = argparse.ArgumentParser(
+        description="Procesador paralelo de archivos WARC de Common Crawl",
+        epilog="Ejemplo: python main.py --dir ./common_crawl_data --limit 0 (ilimitado)"
+    )
+    parser.add_argument("--file", type=str, help="Ruta a un archivo .warc.gz específico")
+    parser.add_argument("--dir", type=str, help="Ruta a directorio con archivos .warc.gz")
+    parser.add_argument("--limit", type=int, default=50, 
+                       help="Páginas por archivo (0 = ilimitado, útil para procesamiento masivo)")
 
     args = parser.parse_args()
 
+    # Convertir limit=0 a None para procesamiento ilimitado
+    limit = None if args.limit == 0 else args.limit
     
     if args.file:
         print(f"📥 Procesando archivo: {args.file}")
-        process_warc_file(args.file, limit=args.limit)
+        print(f"⚙️ Límite: {'ILIMITADO (procesará todo el archivo)' if limit is None else f'{limit} páginas'}")
+        process_warc_file(args.file, limit=limit)
         return
 
     
@@ -38,10 +45,11 @@ def main():
         ]
 
         print(f"📂 Encontrados {len(warc_files)} archivos WARC")
+        print(f"⚙️ Límite por archivo: {'ILIMITADO' if limit is None else f'{limit} páginas'}")
         print(f"⚙️ Ejecutando procesamiento paralelo con {cpu_count()} núcleos...\n")
 
         with Pool(cpu_count()) as pool:
-            pool.map(process_single_file, [(f, args.limit) for f in warc_files])
+            pool.map(process_single_file, [(f, limit) for f in warc_files])
 
         print("\n✔ Procesamiento paralelo completado.")
         return
