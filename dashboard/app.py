@@ -2,6 +2,7 @@ import os
 import streamlit as st
 import requests
 import pandas as pd
+import plotly.graph_objects as go
 
 
 API_URL = os.getenv("ANALYSIS_API_URL", "http://localhost:8000")
@@ -53,14 +54,69 @@ if run_btn:
                 st.success("Correlación calculada")
 
                 # Show tables
-                st.subheader("Pearson")
-                st.table(pd.DataFrame([data.get("pearson", {})]))
-                st.subheader("Spearman")
-                st.table(pd.DataFrame([data.get("spearman", {})]))
+                col1, col2 = st.columns(2)
+                
+                with col1:
+                    st.subheader("Pearson")
+                    pearson_data = data.get("pearson", {})
+                    pearson_df = pd.DataFrame([pearson_data])
+                    st.table(pearson_df)
+                    
+                    # Gráfica de barras para Pearson
+                    if pearson_data:
+                        fig_pearson = go.Figure(data=[
+                            go.Bar(x=list(pearson_data.keys()), y=list(pearson_data.values()))
+                        ])
+                        fig_pearson.update_layout(
+                            title="Correlación de Pearson",
+                            xaxis_title="Feature",
+                            yaxis_title="Correlación",
+                            height=400,
+                            yaxis=dict(range=[-1, 1])
+                        )
+                        st.plotly_chart(fig_pearson, use_container_width=True)
+                
+                with col2:
+                    st.subheader("Spearman")
+                    spearman_data = data.get("spearman", {})
+                    spearman_df = pd.DataFrame([spearman_data])
+                    st.table(spearman_df)
+                    
+                    # Gráfica de barras para Spearman
+                    if spearman_data:
+                        fig_spearman = go.Figure(data=[
+                            go.Bar(x=list(spearman_data.keys()), y=list(spearman_data.values()))
+                        ])
+                        fig_spearman.update_layout(
+                            title="Correlación de Spearman",
+                            xaxis_title="Feature",
+                            yaxis_title="Correlación",
+                            height=400,
+                            yaxis=dict(range=[-1, 1])
+                        )
+                        st.plotly_chart(fig_spearman, use_container_width=True)
 
-                # Rolling as df
+                # Rolling correlations
                 rolling_df = pd.DataFrame(data.get("rolling", {})).T
                 st.subheader("Rolling (último valor por ventana)")
                 st.dataframe(rolling_df)
+                
+                # Gráfica de líneas para Rolling
+                if not rolling_df.empty:
+                    fig_rolling = go.Figure()
+                    for col in rolling_df.columns:
+                        fig_rolling.add_trace(go.Scatter(
+                            x=rolling_df.index.astype(str),
+                            y=rolling_df[col],
+                            mode='lines+markers',
+                            name=col
+                        ))
+                    fig_rolling.update_layout(
+                        title="Correlaciones Rolling",
+                        xaxis_title="Ventana (días)",
+                        yaxis_title="Correlación",
+                        height=400
+                    )
+                    st.plotly_chart(fig_rolling, use_container_width=True)
         except Exception as e:
             st.error(str(e))

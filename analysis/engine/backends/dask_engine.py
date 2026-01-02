@@ -24,9 +24,12 @@ class DaskEngine(AnalysisEngine):
 
     def load_news(self, csv_path: str) -> dd.DataFrame:
         ddf = dd.read_csv(csv_path, assume_missing=True)
-        ddf["fecha"] = ddf["fecha"].map_partitions(lambda s: s.astype(str).apply(to_date), meta=("fecha", "object"))
-        ddf = ddf.dropna(subset=["fecha"])  # type: ignore
-        return ddf
+        # Convert to pandas to parse dates, then back to dask
+        pdf = ddf.compute()
+        pdf["fecha"] = pdf["fecha"].astype(str).apply(to_date)
+        pdf = pdf.dropna(subset=["fecha"])
+        nparts = self.npartitions or max(1, len(pdf) // 1000)
+        return dd.from_pandas(pdf, npartitions=nparts)
 
     def compute_news_features(self, news_df: dd.DataFrame) -> dd.DataFrame:
         # For sentiment, compute in Pandas then convert to Dask (simpler, keeps correctness)
@@ -37,9 +40,13 @@ class DaskEngine(AnalysisEngine):
 
     def load_colcap(self, csv_path: str) -> dd.DataFrame:
         ddf = dd.read_csv(csv_path, assume_missing=True)
-        ddf["date"] = ddf["date"].map_partitions(lambda s: s.astype(str).apply(to_date), meta=("date", "object"))
-        ddf = ddf.dropna(subset=["date", "close"])  # type: ignore
-        return ddf
+        # Convert to pandas to parse dates, then back to dask
+        pdf = ddf.compute()
+        pdf["date"] = pdf["date"].astype(str).apply(to_date)
+        pdf = pdf.dropna(subset=["date", "close"])
+        pdf = pdf.sort_values("date")
+        nparts = self.npartitions or max(1, len(pdf) // 1000)
+        return dd.from_pandas(pdf, npartitions=nparts)
 
     def align_series(self, news_features_df: dd.DataFrame, colcap_df: dd.DataFrame) -> dd.DataFrame:
         joined = dd.merge(news_features_df, colcap_df, on="date", how="inner")

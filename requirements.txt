@@ -19,8 +19,7 @@ vaderSentiment>=3.3.2
 
 # Distributed processing (optional but supported)
 dask[dataframe]>=2024.4.0
-# pyspark is optional; uncomment if you plan to use Spark locally
-# pyspark>=3.5.0
+pyspark>=3.5.0
 
 # API service
 fastapi>=0.115.0
@@ -28,3 +27,4 @@ uvicorn[standard]>=0.30.0
 
 # Dashboard
 streamlit>=1.31.0
+plotly>=5.17.0

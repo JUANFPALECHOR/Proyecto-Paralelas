@@ -13,10 +13,11 @@ services:
     environment:
       - PYTHONUNBUFFERED=1
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
-      interval: 10s
-      timeout: 5s
-      retries: 5
+      test: ["CMD-SHELL", "python -c \"import sys, urllib.request; urllib.request.urlopen('http://127.0.0.1:8000/health'); sys.exit(0)\""]
+      interval: 15s
+      timeout: 10s
+      retries: 10
+      start_period: 30s
     networks:
       - app-network
 

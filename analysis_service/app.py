@@ -99,9 +99,39 @@ def correlate_inline(req: CorrelationInlineRequest):
         # Parse CSV text into DataFrames
         news_df = pd.read_csv(io.StringIO(req.news_csv_text))
         news_df["fecha"] = news_df["fecha"].astype(str)
+        
+        # Convert to backend-specific DataFrame if needed
+        if req.backend == "dask":
+            import dask.dataframe as dd
+            nparts = req.dask_nparts or max(1, len(news_df) // 1000)
+            news_df = dd.from_pandas(news_df, npartitions=nparts)
+        elif req.backend == "spark":
+            # Use the engine's spark session
+            if hasattr(engine, 'spark'):
+                news_df = engine.spark.createDataFrame(news_df)
+            else:
+                from pyspark.sql import SparkSession
+                spark = SparkSession.builder.appName("AnalysisEngine").getOrCreate()
+                news_df = spark.createDataFrame(news_df)
+        
         news_feat = engine.compute_news_features(news_df)
 
         colcap_df = pd.read_csv(io.StringIO(req.colcap_csv_text))
+        
+        # Convert to backend-specific DataFrame if needed
+        if req.backend == "dask":
+            import dask.dataframe as dd
+            nparts = req.dask_nparts or max(1, len(colcap_df) // 1000)
+            colcap_df = dd.from_pandas(colcap_df, npartitions=nparts)
+        elif req.backend == "spark":
+            # Use the engine's spark session
+            if hasattr(engine, 'spark'):
+                colcap_df = engine.spark.createDataFrame(colcap_df)
+            else:
+                from pyspark.sql import SparkSession
+                spark = SparkSession.builder.appName("AnalysisEngine").getOrCreate()
+                colcap_df = spark.createDataFrame(colcap_df)
+        
         joined = engine.align_series(news_feat, colcap_df)
         results = engine.compute_correlations(joined, methods=["pearson", "spearman"], rolling_windows=req.rolling)
         return {"status": "ok", "results": clean_results(results)}

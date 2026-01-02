@@ -1,28 +1,28 @@
 {
   "pearson": {
     "article_count": NaN,
-    "avg_length": -0.9219368344905242,
-    "sentiment_mean": NaN
+    "avg_length": 0.11535812947177981,
+    "sentiment_mean": 0.19742706453426054
   },
   "spearman": {
     "article_count": NaN,
-    "avg_length": -1.0,
-    "sentiment_mean": NaN
+    "avg_length": 0.07260344077445524,
+    "sentiment_mean": 0.16534931799046726
   },
   "rolling": {
     "7": {
       "article_count": NaN,
-      "avg_length": NaN,
+      "avg_length": 0.5212907400761484,
       "sentiment_mean": NaN
     },
     "14": {
       "article_count": NaN,
-      "avg_length": NaN,
+      "avg_length": 0.2126978626743228,
       "sentiment_mean": NaN
     },
     "30": {
       "article_count": NaN,
-      "avg_length": NaN,
+      "avg_length": 0.22083588820591696,
       "sentiment_mean": NaN
     }
   }

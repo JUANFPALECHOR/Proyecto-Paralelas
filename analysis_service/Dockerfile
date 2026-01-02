@@ -3,8 +3,12 @@ FROM python:3.11-slim
 
 WORKDIR /app
 
-# Install system deps if needed (commented to keep minimal)
-# RUN apt-get update && apt-get install -y build-essential && rm -rf /var/lib/apt/lists/*
+# Install Java (required for PySpark)
+RUN apt-get update && apt-get install -y default-jdk && rm -rf /var/lib/apt/lists/*
+
+# Set Java environment variables
+ENV JAVA_HOME=/usr/lib/jvm/default-java
+ENV PATH=$JAVA_HOME/bin:$PATH
 
 # Use root unified requirements; build with context at project root
 COPY requirements.txt /app/requirements.txt
