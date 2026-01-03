@@ -211,5 +211,89 @@ docker-compose up -d
 
 ---
 
+
+## 🌐 Despliegue en Kubernetes (Docker Desktop)
+
+Requerimientos: Kubernetes habilitado en Docker Desktop (Settings → Kubernetes → Enable Kubernetes).
+
+1. Seleccionar contexto y verificar cluster
+```powershell
+kubectl config use-context docker-desktop
+kubectl cluster-info
+```
+
+2. Aplicar manifiestos (desde la raíz del repo)
+```powershell
+kubectl apply -f k8s/
+```
+
+3. Verificar recursos y estado
+```powershell
+kubectl get pods,svc,deploy,hpa -A
+kubectl get pods -w
+```
+
+4. Ver logs y depuración
+```powershell
+# Logs (por label o deployment)
+kubectl logs -l app=analysis-service -f
+kubectl logs deployment/analysis-service -f
+
+# Describir pod para ver eventos y condiciones
+kubectl describe pod <POD_NAME>
+```
+
+5. Acceso local si Ingress no está disponible o falla (port-forward)
+```powershell
+kubectl port-forward svc/analysis-service 8000:8000
+kubectl port-forward svc/dashboard 8501:8501
+# acceder: http://localhost:8501 y http://localhost:8000/docs
+```
+
+6. Comprobar Horizontal Pod Autoscaler (HPA)
+```powershell
+kubectl get hpa
+kubectl describe hpa analysis-service-hpa
+# para ver métricas (si está instalado metrics-server)
+kubectl top pods
+```
+
+7. Forzar actualización de imágenes / deploy
+- Si usas imágenes locales en Docker Desktop, reconstruye localmente y vuelve a aplicar:
+```powershell
+docker build -t analysis-service:latest -f analysis_service/Dockerfile .
+kubectl rollout restart deployment/analysis-service
+kubectl rollout status deployment/analysis-service
+```
+- Si usas un registry remoto: tag → push → actualizar la imagen en el deployment:
+```powershell
+docker tag analysis-service:latest yourrepo/analysis-service:tag
+docker push yourrepo/analysis-service:tag
+kubectl set image deployment/analysis-service analysis-service=yourrepo/analysis-service:tag
+```
+
+8. Generar carga para demostrar escalado (ejemplo PowerShell)
+```powershell
+# Ejecutar en otra terminal para generar requests a la API
+while ($true) { Invoke-RestMethod http://localhost:8000/health; Start-Sleep -Milliseconds 50 }
+# Observar HPA en otra terminal:
+kubectl get hpa analysis-service-hpa -w
+```
+
+9. Limpieza de recursos
+```powershell
+kubectl delete -f k8s/
+```
+
+10. Notas y troubleshooting
+- Si el Ingress falla por rutas regex (error con pathType Prefix), usa port-forward como alternativa.
+- Si los pods muestran ImagePullBackOff, confirma que las imágenes estén disponibles (localmente o en el registry) y revisa `imagePullPolicy`.
+- Si el healthcheck falla por falta de utilidades (ej. curl), asegúrate de usar el healthcheck en Python o instalar curl en la imagen.
+- Para depurar, pega aquí los outputs de:
+  - `kubectl get pods -A`
+  - `kubectl logs deployment/analysis-service --tail=200`
+  - `kubectl describe pod <POD_NAME>`
+
+
 ¡Listo! Ya puedes usar el proyecto. 🎉
 
